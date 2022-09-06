@@ -6,28 +6,28 @@ module.exports = sequelize => {
             type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
-            allowNull: false,
+            allowNull: false
         },
         name: {
             type: DataTypes.STRING,
             unique: true,
-            allowNull: false,
+            allowNull: false
         },
         description: {
             type: DataTypes.TEXT,
-            allowNull: false,
+            allowNull: false
         },
         price: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            allowNull: false
         },
         hexcolor: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: false
         },
         status: {
             type: DataTypes.BOOLEAN,
-            allowNull: false,
-        },
+            allowNull: false
+        }
     });
 };
