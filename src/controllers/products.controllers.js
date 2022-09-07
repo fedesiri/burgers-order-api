@@ -12,7 +12,7 @@ const createProduct = async (req, res) => {
 
         if (existingProduct) {
             if (existingProduct.name === name) {
-                res.send({ success: false, msg: "Product with that name already exists." });
+                res.send({ success: false, msg: `The name ${name} is already assigned for another product` });
             }
             if (existingProduct.hexColor === hexColor) {
                 res.send({ success: false, msg: `The color ${hexColor} is already assigned for another product` });
