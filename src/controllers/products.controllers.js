@@ -34,6 +34,27 @@ const createProduct = async (req, res, next) => {
     }
 };
 
+const editProductStatus = async (req, res, next) => {
+    const { id } = req.params;
+    try {
+        const existingProduct = await Product.findByPk(id);
+
+        if (!existingProduct) {
+            res.send({ success: false, msg: `There is no product with the id '${id}'` });
+        } else {
+            const newStatus = !existingProduct.status;
+            await existingProduct.update({ status: newStatus });
+            res.send({
+                success: true,
+                msg: `The product status was successfully edited to '${existingProduct.status}' `
+            });
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
-    createProduct
+    createProduct,
+    editProductStatus
 };
