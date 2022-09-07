@@ -34,24 +34,19 @@ const createProduct = async (req, res, next) => {
     }
 };
 
-const editStatusProduct = async (req, res, next) => {
+const editProductStatus = async (req, res, next) => {
     const { id } = req.params;
     try {
-        const existingProduct = await Product.findOne({
-            where: {
-                id: id
-            }
-        });
+        const existingProduct = await Product.findByPk(id);
 
         if (!existingProduct) {
-            res.send({ success: false, msg: `There is no product with the id "${id}"` });
+            res.send({ success: false, msg: `There is no product with the id '${id}'` });
         } else {
-            existingProduct.status === true
-                ? await existingProduct.update({ status: false })
-                : await existingProduct.update({ status: true });
+            const newStatus = !existingProduct.status;
+            await existingProduct.update({ status: newStatus });
             res.send({
                 success: true,
-                msg: `The ${existingProduct.name} product status was successfully edited to "${existingProduct.status}" `
+                msg: `The product status was successfully edited to '${existingProduct.status}' `
             });
         }
     } catch (error) {
@@ -61,5 +56,5 @@ const editStatusProduct = async (req, res, next) => {
 
 module.exports = {
     createProduct,
-    editStatusProduct
+    editProductStatus
 };
