@@ -1,7 +1,7 @@
 const { Product } = require("../db.js");
 const { Op } = require("sequelize");
 
-const createProduct = async (req, res) => {
+const createProduct = async (req, res, next) => {
     const { name, description, price, hexColor } = req.body;
     try {
         const existingProduct = await Product.findOne({
@@ -30,7 +30,7 @@ const createProduct = async (req, res) => {
             res.send({ success: true, msg: "Product has been created succesfully!" });
         }
     } catch (error) {
-        console.log(error);
+        next(error);
     }
 };
 
