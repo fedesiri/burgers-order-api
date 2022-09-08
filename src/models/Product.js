@@ -21,13 +21,14 @@ module.exports = sequelize => {
             type: DataTypes.INTEGER,
             allowNull: false
         },
-        hexcolor: {
+        hexColor: {
             type: DataTypes.STRING,
             allowNull: false
         },
         status: {
             type: DataTypes.BOOLEAN,
-            allowNull: false
+            allowNull: false,
+            defaultValue: true
         }
     });
 };
