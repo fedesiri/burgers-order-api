@@ -1,6 +1,15 @@
 const { Product } = require("../db.js");
 const { Op } = require("sequelize");
 
+const getAllProducts = async (req, res) => {
+    try {
+        const response = await Product.findAll();
+        res.json(response);
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 const createProduct = async (req, res, next) => {
     const { name, description, price, hexColor } = req.body;
     try {
@@ -55,6 +64,7 @@ const editProductStatus = async (req, res, next) => {
 };
 
 module.exports = {
+    getAllProducts,
     createProduct,
     editProductStatus
 };
