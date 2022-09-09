@@ -22,7 +22,7 @@ app.use((err, req, res, next) => {
     res.status(status).send(message);
 });
 
-conn.sync({ force: false }).then(() => {
+conn.sync({ force: true }).then(() => {
     app.listen(app.get("port"), () => {
         console.log("PostgresDB connected");
         console.log("Server on port " + app.get("port"));
