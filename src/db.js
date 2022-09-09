@@ -5,16 +5,18 @@ const path = require("path");
 const { DB_USER, DB_PASSWORD, DB_HOST, DB_NAME, ENVIRONMENT, PROD_DB_URL } = process.env;
 
 let sequelize;
+const dbConfigs = {
+    logging: false,
+    native: false,
+    define: {
+        timestamps: false
+    }
+};
+
 if (ENVIRONMENT === "dev") {
-    sequelize = new Sequelize(`postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/${DB_NAME}`, {
-        logging: false,
-        native: false
-    });
+    sequelize = new Sequelize(`postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/${DB_NAME}`, dbConfigs);
 } else {
-    sequelize = new Sequelize(PROD_DB_URL, {
-        logging: false,
-        native: false
-    });
+    sequelize = new Sequelize(PROD_DB_URL, dbConfigs);
 }
 
 const basename = path.basename(__filename);
@@ -35,6 +37,9 @@ let entries = Object.entries(sequelize.models);
 let capsEntries = entries.map(entry => [entry[0][0].toUpperCase() + entry[0].slice(1), entry[1]]);
 sequelize.models = Object.fromEntries(capsEntries);
 
-const { Product } = sequelize.models;
+const { Product, Order, OrderProduct } = sequelize.models;
+
+Product.belongsToMany(Order, { through: OrderProduct });
+Order.belongsToMany(Product, { through: OrderProduct });
 
 module.exports = { ...sequelize.models, conn: sequelize };
