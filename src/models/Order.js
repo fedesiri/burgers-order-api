@@ -12,7 +12,6 @@ module.exports = sequelize => {
             },
             name: {
                 type: DataTypes.STRING,
-                unique: true,
                 allowNull: false
             },
             address: {
@@ -46,10 +45,6 @@ module.exports = sequelize => {
                 defaultValue: DataTypes.NOW
             }
         },
-        {
-            timestamps: false,
-            createdAt: false,
-            updatedAt: "actualizado"
-        }
+        { timestamps: false }
     );
 };

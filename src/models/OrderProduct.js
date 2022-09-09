@@ -4,25 +4,27 @@ module.exports = sequelize => {
     sequelize.define("orderProduct", {
         orderId: {
             type: DataTypes.INTEGER,
-            autoIncrement: true,
-            primaryKey: true,
+            primaryKey: false,
             allowNull: false
         },
         productId: {
             type: DataTypes.INTEGER,
-            primaryKey: true,
+            primaryKey: false,
             allowNull: false
         },
         quantity: {
             type: DataTypes.INTEGER,
+            primaryKey: true,
             allowNull: false
         },
         subtotal: {
             type: DataTypes.INTEGER,
+            primaryKey: true,
             allowNull: false
         },
         notes: {
-            type: DataTypes.STRING
+            type: DataTypes.STRING,
+            primaryKey: true
         }
     });
 };
