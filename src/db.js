@@ -5,16 +5,18 @@ const path = require("path");
 const { DB_USER, DB_PASSWORD, DB_HOST, DB_NAME, ENVIRONMENT, PROD_DB_URL } = process.env;
 
 let sequelize;
+const dbConfigs = {
+    logging: false,
+    native: false,
+    define: {
+        timestamps: false
+    }
+};
+
 if (ENVIRONMENT === "dev") {
-    sequelize = new Sequelize(`postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/${DB_NAME}`, {
-        logging: false,
-        native: false
-    });
+    sequelize = new Sequelize(`postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/${DB_NAME}`, dbConfigs);
 } else {
-    sequelize = new Sequelize(PROD_DB_URL, {
-        logging: false,
-        native: false
-    });
+    sequelize = new Sequelize(PROD_DB_URL, dbConfigs);
 }
 
 const basename = path.basename(__filename);
