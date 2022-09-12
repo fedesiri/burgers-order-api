@@ -1,7 +1,5 @@
 const { Product } = require("../db.js");
 const { Op } = require("sequelize");
-const e = require("express");
-const { native } = require("pg");
 
 const getAllProducts = async (req, res) => {
     try {
@@ -65,7 +63,7 @@ const editProductStatus = async (req, res, next) => {
     }
 };
 
-const editProductByID = async (req, res, next) => {
+const editProductById = async (req, res, next) => {
     const { id } = req.params;
     const { name, description, price, hexColor } = req.body;
     try {
@@ -120,49 +118,9 @@ const editProductByID = async (req, res, next) => {
     }
 };
 
-// const editProductByID = async (req, res, next) => {
-//     const { id } = req.params;
-//     const { name, description, price, hexColor } = req.body;
-//     try {
-//         const existingProduct = await Product.findByPk(id);
-//         if (!existingProduct) {
-//             res.send({ success: false, msg: `There is no product with the id '${id}'` });
-//         }
-//             else {
-// const existingProduct = await Product.findAll({
-//     where: {
-//         [Op.or]: [{ name: name }, { hexColor: hexColor }]
-//     }
-// });
-//             if (existingProduct) {
-// if (existingProduct.name === name) {
-//     res.send({ success: false, msg: `The name ${name} is already assigned for another product` });
-// }
-//                 if (existingProduct.hexColor === hexColor) {
-//                     res.send({ success: false, msg: `The color ${hexColor} is already assigned for another product` });
-//                 }
-//                 else if (price <= 0) {
-//                     res.send({ success: false, msg: "Price must be a number greater than 0." });
-//                 } else {
-//                     await Product.update({
-//                         name,
-//                         description,
-//                         price,
-//                         hexColor
-//                     });
-//                     res.send({ success: true, msg: "Product has been edited succesfully!" });
-//                 }
-//                 res.send(existingProduct);
-//             }
-//         }
-//     } catch (error) {
-//         next(error);
-//     }
-// };
-
 module.exports = {
     getAllProducts,
     createProduct,
     editProductStatus,
-    editProductByID
+    editProductById
 };
