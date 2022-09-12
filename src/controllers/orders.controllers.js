@@ -1,15 +1,14 @@
-const { Order } = require("../db.js");
-const { OrderProduct } = require("../db.js");
+const { Order, OrderProduct } = require("../db.js");
 
 const createOrder = async (req, res, next) => {
     const { name, address, notes, paymentMethod, deliveredBy, takeAway, totalPrice, time, products } = req.body;
     try {
         if (!name) {
             res.send({ success: false, msg: "The order must have a name" });
-        } else if (!address && takeAway === false) {
+        } else if (!takeAway && !address) {
             res.send({ success: false, msg: "The order must have an address" });
         } else if (totalPrice < 0) {
-            res.send({ success: false, msg: "Price must be a number greater than 0." });
+            res.send({ success: false, msg: "Price must be a number greater than 0" });
         } else {
             const order = await Order.create({
                 name,
