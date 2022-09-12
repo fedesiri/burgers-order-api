@@ -73,7 +73,7 @@ const editProductById = async (req, res, next) => {
             return;
         }
         if (price < 0) {
-            res.send({ success: false, msg: "Price must be a number greater than 0." });
+            res.send({ success: false, msg: "Price must be a number greater than 0" });
             return;
         }
         if (existingProduct.name !== name) {
