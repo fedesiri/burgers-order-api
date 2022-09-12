@@ -27,7 +27,7 @@ const createProduct = async (req, res, next) => {
                 res.send({ success: false, msg: `The color ${hexColor} is already assigned for another product` });
             }
         } else if (price <= 0) {
-            res.send({ success: false, msg: "Price must be a number greater than 0." });
+            res.send({ success: false, msg: "Price must be a number greater than 0" });
         } else {
             await Product.create({
                 name,
