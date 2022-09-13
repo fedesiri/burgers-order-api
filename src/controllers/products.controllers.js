@@ -63,8 +63,64 @@ const editProductStatus = async (req, res, next) => {
     }
 };
 
+const editProductById = async (req, res, next) => {
+    const { id } = req.params;
+    const { name, description, price, hexColor } = req.body;
+    try {
+        const existingProduct = await Product.findByPk(id);
+        if (!existingProduct) {
+            res.send({ success: false, msg: `There is no product with the id '${id}'` });
+            return;
+        }
+        if (price < 0) {
+            res.send({ success: false, msg: "Price must be a number greater than 0" });
+            return;
+        }
+        if (existingProduct.name !== name) {
+            const existingProductByName = await Product.findOne({
+                where: {
+                    name: name
+                }
+            });
+            if (existingProductByName?.name === name) {
+                res.send({ success: false, msg: `The name ${name} is already assigned for another product` });
+                return;
+            }
+        }
+        if (existingProduct.hexColor !== hexColor) {
+            const existingProductByHexColor = await Product.findOne({
+                where: {
+                    hexColor: hexColor
+                }
+            });
+            if (existingProductByHexColor?.hexColor === hexColor) {
+                res.send({ success: false, msg: `The hexColor ${hexColor} is already assigned for another product` });
+                return;
+            }
+        }
+        await Product.update(
+            {
+                name,
+                description,
+                price,
+                hexColor
+            },
+            {
+                where: {
+                    id: id
+                }
+            }
+        );
+
+        res.send({ success: true, msg: "Product has been edited succesfully!" });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getAllProducts,
     createProduct,
-    editProductStatus
+    editProductStatus,
+    editProductById
 };

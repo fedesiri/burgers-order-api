@@ -4,7 +4,7 @@ const orderRouter = require("./orders.routes.js");
 
 const router = express.Router();
 
-router.use("/products", productsRouter);
+router.use("/product", productsRouter);
 router.use("/order", orderRouter);
 
 module.exports = router;
