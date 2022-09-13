@@ -84,7 +84,7 @@ const editOrderDelivery = async (req, res, next) => {
             res.send({ success: false, msg: `There is no order with the id '${id}'` });
         } else {
             await Order.update({ deliveredBy }, { where: { id: id } });
-            res.send({ success: true, msg: `Delivery has been edited succesfully by ${deliveredBy}!` });
+            res.send({ success: true, msg: `Delivery has been changed succesfully to ${deliveredBy}!` });
         }
     } catch (error) {
         next(error);
