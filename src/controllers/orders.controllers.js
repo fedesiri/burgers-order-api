@@ -53,7 +53,28 @@ const deleteOrder = async (req, res, next) => {
     }
 };
 
+const editOrderStatus = async (req, res, next) => {
+    const { id } = req.params;
+    try {
+        const existingOrder = await Order.findByPk(id);
+
+        if (!existingOrder) {
+            res.send({ success: false, msg: `There is no order with the id '${id}'` });
+        } else {
+            const newStatus = !existingOrder.status;
+            await existingOrder.update({ status: newStatus });
+            res.send({
+                success: true,
+                msg: `The order status was successfully edited to '${existingOrder.status}' `
+            });
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     createOrder,
-    deleteOrder
+    deleteOrder,
+    editOrderStatus
 };
