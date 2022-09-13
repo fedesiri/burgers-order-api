@@ -37,6 +37,25 @@ const createOrder = async (req, res, next) => {
     }
 };
 
+const editOrderDelivery = async (req, res, next) => {
+    const { id } = req.params;
+    const { deliveredBy } = req.body;
+
+    try {
+        const existingOrder = await Order.findByPk(id);
+
+        if (!existingOrder) {
+            res.send({ success: false, msg: `There is no order with the id '${id}'` });
+        } else {
+            await Order.update({ deliveredBy }, { where: { id: id } });
+            res.send({ success: true, msg: `Delivery has been edited succesfully!` });
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
-    createOrder
+    createOrder,
+    editOrderDelivery
 };
