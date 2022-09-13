@@ -37,6 +37,22 @@ const createOrder = async (req, res, next) => {
     }
 };
 
+const deleteOrder = async (req, res, next) => {
+    const { id } = req.params;
+    try {
+        const orderToDelete = await Order.findByPk(id);
+
+        if (!orderToDelete) {
+            res.send({ success: false, msg: `There is no order with the id '${id}'` });
+        } else {
+            await orderToDelete.destroy();
+            res.send({ success: true, msg: `The order was successfully deleted!` });
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
 const editOrderStatus = async (req, res, next) => {
     const { id } = req.params;
     try {
@@ -59,5 +75,6 @@ const editOrderStatus = async (req, res, next) => {
 
 module.exports = {
     createOrder,
+    deleteOrder,
     editOrderStatus
 };
