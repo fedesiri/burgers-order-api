@@ -26,7 +26,8 @@ const createOrder = async (req, res, next) => {
                     orderId: order.id,
                     productId: productInOrder.productId,
                     quantity: productInOrder.quantity,
-                    subtotal: productInOrder.subtotal
+                    subtotal: productInOrder.subtotal,
+                    notes: productInOrder.notes
                 });
             });
             await Promise.all(promises);
@@ -91,9 +92,62 @@ const editOrderDelivery = async (req, res, next) => {
     }
 };
 
+const editOrder = async (req, res, next) => {
+    const { id } = req.params;
+    const { name, address, notes, paymentMethod, takeAway, totalPrice, time, products } = req.body;
+    try {
+        const orderToEdit = await Order.findByPk(id);
+
+        if (!orderToEdit) {
+            res.send({ success: false, msg: `There is no order with the id '${id}'` });
+        } else if (!name) {
+            res.send({ success: false, msg: "The order must have a name" });
+        } else if (!takeAway && !address) {
+            res.send({ success: false, msg: "The order must have an address" });
+        } else if (totalPrice < 0) {
+            res.send({ success: false, msg: "Price must be a number greater than 0" });
+        } else {
+            orderToEdit.name = name;
+            orderToEdit.address = address;
+            orderToEdit.notes = notes;
+            orderToEdit.paymentMethod = paymentMethod;
+            orderToEdit.takeAway = takeAway;
+            orderToEdit.totalPrice = totalPrice;
+            orderToEdit.time = time;
+
+            orderToEdit.save();
+
+            const orderProducts = await OrderProduct.findAll({
+                where: {
+                    orderId: orderToEdit.id
+                }
+            });
+
+            orderProducts?.forEach(async orderProduct => {
+                return await orderProduct.destroy();
+            });
+
+            const promises = products?.map(async productInOrder => {
+                return await OrderProduct.create({
+                    orderId: orderToEdit.id,
+                    productId: productInOrder.productId,
+                    quantity: productInOrder.quantity,
+                    subtotal: productInOrder.subtotal,
+                    notes: productInOrder.notes
+                });
+            });
+            await Promise.all(promises);
+            res.send({ success: true, msg: "Order has been edited succesfully!" });
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     createOrder,
     deleteOrder,
     editOrderStatus,
-    editOrderDelivery
+    editOrderDelivery,
+    editOrder
 };
