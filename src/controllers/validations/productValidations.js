@@ -1,6 +1,11 @@
 const { Product } = require("../../db.js");
 const { Op } = require("sequelize");
 
+const errorNameMsg = `The name is already assigned for another product`;
+const errorHexColorMsg = `The color is already assigned for another product`;
+const errorPriceMsg = "Price must be a number greater than 0";
+const errorIdMsg = `There is no product with that id`;
+
 const createProductValidation = async body => {
     const { name, hexColor, price } = body;
 
@@ -11,23 +16,22 @@ const createProductValidation = async body => {
     });
     if (existingProduct) {
         if (existingProduct.name === name) {
-            return `The name ${name} is already assigned for another product`;
+            return errorNameMsg;
         }
         if (existingProduct.hexColor === hexColor) {
-            return `The color ${hexColor} is already assigned for another product`;
+            return errorHexColorMsg;
         }
     } else if (price <= 0) {
-        return "Price must be a number greater than 0";
+        return errorPriceMsg;
     }
 
     return null;
 };
 
-const editProductStatusValidation = async params => {
-    const { id } = params;
-    const existingProduct = await Product.findByPk(params);
+const editProductStatusValidation = async id => {
+    const existingProduct = await Product.findByPk(id);
     if (!existingProduct) {
-        return `There is no product with the id '${params}'`;
+        return errorIdMsg;
     } else {
         const newStatus = !existingProduct.status;
         await existingProduct.update({ status: newStatus });
@@ -36,7 +40,43 @@ const editProductStatusValidation = async params => {
     return null;
 };
 
+const editProductByIdValidation = async (params, body) => {
+    const { id } = params;
+    const { name, price, hexColor } = body;
+
+    const existingProduct = await Product.findByPk(id);
+    if (!existingProduct) {
+        return errorIdMsg;
+    }
+    if (price < 0) {
+        return errorPriceMsg;
+    }
+    if (existingProduct.name !== name) {
+        const existingProductByName = await Product.findOne({
+            where: {
+                name: name
+            }
+        });
+        if (existingProductByName?.name === name) {
+            return errorNameMsg;
+        }
+    }
+    if (existingProduct.hexColor !== hexColor) {
+        const existingProductByHexColor = await Product.findOne({
+            where: {
+                hexColor: hexColor
+            }
+        });
+        if (existingProductByHexColor?.hexColor === hexColor) {
+            return errorHexColorMsg;
+        }
+    }
+
+    return null;
+};
+
 module.exports = {
     createProductValidation,
-    editProductStatusValidation
+    editProductStatusValidation,
+    editProductByIdValidation
 };
