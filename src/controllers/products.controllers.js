@@ -34,14 +34,14 @@ const createProduct = async (req, res, next) => {
 const editProductStatus = async (req, res, next) => {
     const { id } = req.params;
     try {
-        const existingProduct = await Product.findByPk(id);
-        const errorMsg = await editProductStatusValidation(id);
+        const productToEdit = await Product.findByPk(id);
+        const errorMsg = await editProductStatusValidation(productToEdit);
         if (errorMsg) {
             res.send({ success: false, msg: errorMsg });
         } else {
-            const newStatus = !existingProduct.status;
-            await existingProduct.update({ status: newStatus });
-            res.send({ success: true, msg: `The product status was successfully edited by '${existingProduct.status}'` });
+            const newStatus = !productToEdit.status;
+            await productToEdit.update({ status: newStatus });
+            res.send({ success: true, msg: `The product status was successfully edited by '${productToEdit.status}'` });
         }
     } catch (error) {
         next(error);
