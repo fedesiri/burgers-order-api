@@ -1,4 +1,5 @@
 const { Product, Order, OrderProduct } = require("../db.js");
+const { Op } = require("sequelize");
 
 const createOrder = async (req, res, next) => {
     const { name, address, notes, paymentMethod, deliveredBy, takeAway, totalPrice, time, products } = req.body;
@@ -54,10 +55,19 @@ const getOrders = async (req, res, next) => {
                         dateTo: dateTo
                     }
                 };
-                Order.findAll({
-                    query,
-                    include: Product
+                const dateOrders = await Order.findAll({
+                    where: {
+                        time: {
+                            [Op.iLike]: `%${dateFrom && dateTo}%`
+                        },
+                        include: [
+                            {
+                                model: OrderProduct
+                            }
+                        ]
+                    }
                 });
+                res.send(dateOrders);
             } else {
                 res.send({ success: false, msg: `The date ${dateFrom} is not less than date ${dateTo}` });
             }
