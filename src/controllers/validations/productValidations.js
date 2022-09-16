@@ -1,10 +1,10 @@
 const { Product } = require("../../db.js");
 const { Op } = require("sequelize");
 
-const errorNameMsg = `The name is already assigned for another product`;
-const errorHexColorMsg = `The color is already assigned for another product`;
+const errorNameMsg = name => `The name '${name}' is already assigned for another product`;
+const errorHexColorMsg = hexColor => `The color '${hexColor}' is already assigned for another product`;
 const errorPriceMsg = "Price must be a number greater than 0";
-const errorIdMsg = `There is no product with that id`;
+const errorIdMsg = id => `There is no product with the id '${id}'`;
 
 const createProductValidation = async body => {
     const { name, hexColor, price } = body;
@@ -16,10 +16,10 @@ const createProductValidation = async body => {
     });
     if (existingProduct) {
         if (existingProduct.name === name) {
-            return errorNameMsg;
+            return errorNameMsg(name);
         }
         if (existingProduct.hexColor === hexColor) {
-            return errorHexColorMsg;
+            return errorHexColorMsg(hexColor);
         }
     } else if (price <= 0) {
         return errorPriceMsg;
@@ -31,22 +31,18 @@ const createProductValidation = async body => {
 const editProductStatusValidation = async id => {
     const existingProduct = await Product.findByPk(id);
     if (!existingProduct) {
-        return errorIdMsg;
-    } else {
-        const newStatus = !existingProduct.status;
-        await existingProduct.update({ status: newStatus });
+        return errorIdMsg(id);
     }
 
     return null;
 };
 
-const editProductByIdValidation = async (params, body) => {
-    const { id } = params;
+const editProductByIdValidation = async (id, body) => {
     const { name, price, hexColor } = body;
 
     const existingProduct = await Product.findByPk(id);
     if (!existingProduct) {
-        return errorIdMsg;
+        return errorIdMsg(id);
     }
     if (price < 0) {
         return errorPriceMsg;
@@ -58,7 +54,7 @@ const editProductByIdValidation = async (params, body) => {
             }
         });
         if (existingProductByName?.name === name) {
-            return errorNameMsg;
+            return errorNameMsg(name);
         }
     }
     if (existingProduct.hexColor !== hexColor) {
@@ -68,7 +64,7 @@ const editProductByIdValidation = async (params, body) => {
             }
         });
         if (existingProductByHexColor?.hexColor === hexColor) {
-            return errorHexColorMsg;
+            return errorHexColorMsg(hexColor);
         }
     }
 

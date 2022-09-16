@@ -34,14 +34,14 @@ const createProduct = async (req, res, next) => {
 const editProductStatus = async (req, res, next) => {
     const { id } = req.params;
     try {
+        const existingProduct = await Product.findByPk(id);
         const errorMsg = await editProductStatusValidation(id);
         if (errorMsg) {
             res.send({ success: false, msg: errorMsg });
         } else {
-            res.send({
-                success: true,
-                msg: `The product status was successfully edited`
-            });
+            const newStatus = !existingProduct.status;
+            await existingProduct.update({ status: newStatus });
+            res.send({ success: true, msg: `The product status was successfully edited by '${existingProduct.status}'` });
         }
     } catch (error) {
         next(error);
@@ -52,7 +52,7 @@ const editProductById = async (req, res, next) => {
     const { id } = req.params;
     const { name, description, price, hexColor } = req.body;
     try {
-        const errorMsg = await editProductByIdValidation(req.params, req.body);
+        const errorMsg = await editProductByIdValidation(id, req.body);
         if (errorMsg) {
             res.send({ success: false, msg: errorMsg });
         } else {
