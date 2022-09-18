@@ -38,47 +38,30 @@ const createOrder = async (req, res, next) => {
     }
 };
 
-// debemos traer por params dateFrom y dateTo (fecha desde y hasta)
-// armar la query dependiendo de si llegaron o no las fechas
-// traer todas las ordenes, incluyendo los productos (tabla orderProduct)
-//CasoFeliz: Devuelve todas las ordenes incluyendo los productos con la información de OrderProduct
 const getOrders = async (req, res, next) => {
     const { dateFrom, dateTo } = req.query;
-    //si tenemos 1 sola fecha pasada por paramtro deberiamos traer todas las ordenes de ese dia
-    //si tenemos dateFrom y dateTo
     try {
+        let query = {};
         if (dateFrom && dateTo) {
-            if (dateFrom < dateTo) {
-                const query = {
-                    where: {
-                        dateFrom: dateFrom,
-                        dateTo: dateTo
-                    }
-                };
-                const dateOrders = await Order.findAll({
-                    where: {
-                        time: {
-                            [Op.iLike]: `%${dateFrom && dateTo}%`
-                        },
-                        include: [
-                            {
-                                model: OrderProduct
-                            }
-                        ]
-                    }
-                });
-                res.send(dateOrders);
-            } else {
-                res.send({ success: false, msg: `The date ${dateFrom} is not less than date ${dateTo}` });
-            }
-        } else {
-            res.send({ success: false, msg: "Please insert valid date!" });
+            query = {
+                time: {
+                    [Op.between]: [dateFrom, dateTo]
+                }
+            };
         }
+        const dateOrders = await Order.findAll({
+            where: query,
+            include: [
+                {
+                    model: Product,
+                    attributes: ["name", "price", "hexColor"]
+                }
+            ]
+        });
+        res.send(dateOrders);
     } catch (error) {
         next(error);
     }
-
-    // controlamos que dateFrom sea menor a dateTo y hacemos un get a todas las ordenes que matcheen con dateFrom y dateTo
 };
 
 module.exports = {
