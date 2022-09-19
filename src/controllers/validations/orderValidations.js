@@ -18,18 +18,18 @@ const createOrEditOrderValidationFields = body => {
     }
 };
 
-const existingOrderValidation = async (existingOrder, id) => {
+const existingOrderValidation = (existingOrder, id) => {
     if (!existingOrder) {
         return errorMessages.nonexistingId(id);
     }
     return null;
 };
 
-const editOrderValidation = async (orderToEdit, body) => {
+const editOrderValidation = (orderToEdit, id, body) => {
     if (!orderToEdit) {
         return errorMessages.nonexistingId(id);
     }
-    createOrEditOrderValidationFields(body);
+    return createOrEditOrderValidationFields(body);
 };
 
 module.exports = {

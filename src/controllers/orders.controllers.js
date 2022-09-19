@@ -40,7 +40,7 @@ const deleteOrder = async (req, res, next) => {
     const { id } = req.params;
     try {
         const orderToDelete = await Order.findByPk(id);
-        const errorMsg = await existingOrderValidation(orderToDelete, id);
+        const errorMsg = existingOrderValidation(orderToDelete, id);
 
         if (errorMsg) {
             res.send({ success: false, msg: errorMsg });
@@ -57,7 +57,7 @@ const editOrderStatus = async (req, res, next) => {
     const { id } = req.params;
     try {
         const existingOrder = await Order.findByPk(id);
-        const errorMsg = await existingOrderValidation(existingOrder, id);
+        const errorMsg = existingOrderValidation(existingOrder, id);
 
         if (errorMsg) {
             res.send({ success: false, msg: errorMsg });
@@ -80,7 +80,7 @@ const editOrderDelivery = async (req, res, next) => {
 
     try {
         const existingOrder = await Order.findByPk(id);
-        const errorMsg = await existingOrderValidation(existingOrder, id);
+        const errorMsg = existingOrderValidation(existingOrder, id);
 
         if (errorMsg) {
             res.send({ success: false, msg: errorMsg });
@@ -98,7 +98,7 @@ const editOrder = async (req, res, next) => {
     const { name, address, notes, paymentMethod, takeAway, totalPrice, time, products } = req.body;
     try {
         const orderToEdit = await Order.findByPk(id);
-        const errorMsg = await editOrderValidation(orderToEdit, req.body);
+        const errorMsg = editOrderValidation(orderToEdit, id, req.body);
 
         if (errorMsg) {
             res.send({ success: false, msg: errorMsg });
