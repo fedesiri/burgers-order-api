@@ -35,7 +35,7 @@ const editProductStatus = async (req, res, next) => {
     const { id } = req.params;
     try {
         const productToEdit = await Product.findByPk(id);
-        const errorMsg = await editProductStatusValidation(productToEdit);
+        const errorMsg = await editProductStatusValidation(productToEdit, id);
         if (errorMsg) {
             res.send({ success: false, msg: errorMsg });
         } else {

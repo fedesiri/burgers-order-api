@@ -30,7 +30,7 @@ const createProductValidation = async body => {
     return null;
 };
 
-const editProductStatusValidation = async existingProduct => {
+const editProductStatusValidation = (existingProduct, id) => {
     if (!existingProduct) {
         return errorMessages.nonexistingId(id);
     }
