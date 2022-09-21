@@ -1,4 +1,5 @@
-const { Order, OrderProduct } = require("../db.js");
+const { Product, Order, OrderProduct } = require("../db.js");
+const moment = require("moment");
 const { createOrEditOrderValidationFields, existingOrderValidation, editOrderValidation } = require("./validations/orderValidations");
 
 const createOrder = async (req, res, next) => {
@@ -31,6 +32,36 @@ const createOrder = async (req, res, next) => {
             await Promise.all(promises);
             res.send({ success: true, msg: "Order has been created succesfully!" });
         }
+    } catch (error) {
+        next(error);
+    }
+};
+
+const getOrders = async (req, res, next) => {
+    const { dateFrom, dateTo } = req.query;
+    try {
+        let query = {};
+        if (dateFrom && dateTo) {
+            if (!moment(dateFrom).isValid() || !moment(dateTo).isValid()) {
+                res.send({ success: false, msg: "Date not is valid!" });
+                return;
+            }
+            query = {
+                time: {
+                    [Op.between]: [dateFrom, dateTo]
+                }
+            };
+        }
+        const dateOrders = await Order.findAll({
+            where: query,
+            include: [
+                {
+                    model: Product,
+                    attributes: ["name", "price", "hexColor"]
+                }
+            ]
+        });
+        res.send(dateOrders);
     } catch (error) {
         next(error);
     }
@@ -142,6 +173,7 @@ const editOrder = async (req, res, next) => {
 
 module.exports = {
     createOrder,
+    getOrders,
     deleteOrder,
     editOrderStatus,
     editOrderDelivery,
