@@ -1,5 +1,6 @@
 const { Product, Order, OrderProduct } = require("../db.js");
 const { Op } = require("sequelize");
+const moment = require("moment");
 
 const createOrder = async (req, res, next) => {
     const { name, address, notes, paymentMethod, deliveredBy, takeAway, totalPrice, time, products } = req.body;
@@ -43,6 +44,10 @@ const getOrders = async (req, res, next) => {
     try {
         let query = {};
         if (dateFrom && dateTo) {
+            if (!moment(dateFrom).isValid() || !moment(dateTo).isValid()) {
+                res.send({ success: false, msg: "Date not is valid!" });
+                return;
+            }
             query = {
                 time: {
                     [Op.between]: [dateFrom, dateTo]
