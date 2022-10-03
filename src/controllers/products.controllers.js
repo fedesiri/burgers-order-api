@@ -16,9 +16,9 @@ const getProductById = async (req, res, next) => {
         const existingProduct = await Product.findByPk(id);
         const errorMsg = editExistingProductValidation(existingProduct, id);
         if (errorMsg) {
-            res.send({ success: false, msg: errorMsg });
+            res.send({ success: false, msg: errorMsg, data: null });
         } else {
-            res.send(existingProduct);
+            res.send({ success: true, msg: null, data: existingProduct });
         }
     } catch (error) {
         next(error);
