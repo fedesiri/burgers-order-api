@@ -1,10 +1,25 @@
 const { Product } = require("../db.js");
-const { createProductValidation, editProductStatusValidation, editProductByIdValidation } = require("./validations/productValidations");
+const { createProductValidation, editExistingProductValidation, editProductByIdValidation } = require("./validations/productValidations");
 
-const getAllProducts = async (req, res) => {
+const getAllProducts = async (req, res, next) => {
     try {
         const response = await Product.findAll();
         res.send(response);
+    } catch (error) {
+        next(error);
+    }
+};
+
+const getProductById = async (req, res, next) => {
+    const { id } = req.params;
+    try {
+        const existingProduct = await Product.findByPk(id);
+        const errorMsg = editExistingProductValidation(existingProduct, id);
+        if (errorMsg) {
+            res.send({ success: false, msg: errorMsg, data: null });
+        } else {
+            res.send({ success: true, msg: null, data: existingProduct });
+        }
     } catch (error) {
         next(error);
     }
@@ -35,7 +50,7 @@ const editProductStatus = async (req, res, next) => {
     const { id } = req.params;
     try {
         const productToEdit = await Product.findByPk(id);
-        const errorMsg = await editProductStatusValidation(productToEdit, id);
+        const errorMsg = editExistingProductValidation(productToEdit, id);
         if (errorMsg) {
             res.send({ success: false, msg: errorMsg });
         } else {
@@ -79,6 +94,7 @@ const editProductById = async (req, res, next) => {
 
 module.exports = {
     getAllProducts,
+    getProductById,
     createProduct,
     editProductStatus,
     editProductById
