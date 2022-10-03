@@ -30,7 +30,7 @@ const createProductValidation = async body => {
     return null;
 };
 
-const editProductStatusValidation = (existingProduct, id) => {
+const editExistingProductValidation = (existingProduct, id) => {
     if (!existingProduct) {
         return errorMessages.nonexistingId(id);
     }
@@ -74,6 +74,6 @@ const editProductByIdValidation = async (id, body) => {
 
 module.exports = {
     createProductValidation,
-    editProductStatusValidation,
+    editExistingProductValidation,
     editProductByIdValidation
 };
