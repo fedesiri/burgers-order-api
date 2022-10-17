@@ -43,7 +43,7 @@ const getOrders = async (req, res, next) => {
         let query = {};
         if (dateFrom && dateTo) {
             if (!moment(dateFrom).isValid() || !moment(dateTo).isValid()) {
-                res.send({ success: false, msg: "Date not is valid!" });
+                res.send({ success: false, msg: "Date not is valid!", data: null });
                 return;
             }
             query = {
@@ -61,7 +61,7 @@ const getOrders = async (req, res, next) => {
                 }
             ]
         });
-        res.send(dateOrders);
+        res.send({ success: true, msg: null, data: dateOrders });
     } catch (error) {
         next(error);
     }
