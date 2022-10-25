@@ -131,7 +131,7 @@ const getQuantitySoldByPeriod = period => {
 };
 
 const getSoldQuantityByMonth = async (req, res, next) => {
-    const { date } = req.body;
+    const { date } = req.params;
     try {
         if (!date || !moment(date).isValid()) {
             res.send({ success: false, msg: "Date not is valid!", data: null });
@@ -143,10 +143,12 @@ const getSoldQuantityByMonth = async (req, res, next) => {
         const numberOfDays = getNumberOfDays(month);
         const { firstPeriod, secondPeriod, thirdPeriod, fourthPeriod } = getPeriods(numberOfDays, month, year);
 
-        const firstPeriodOrder = await getOrdersByPeriod(firstPeriod);
-        const secondPeriodOrder = await getOrdersByPeriod(secondPeriod);
-        const thirdPeriodOrder = await getOrdersByPeriod(thirdPeriod);
-        const fourthPeriodOrder = await getOrdersByPeriod(fourthPeriod);
+        const ordersByPeriod = await getOrdersByPeriod([firstPeriod[0], fourthPeriod[1]]);
+
+        const firstPeriodOrder = ordersByPeriod.filter(order => moment(order.time).isBetween(firstPeriod[0], firstPeriod[1]));
+        const secondPeriodOrder = ordersByPeriod.filter(order => moment(order.time).isBetween(secondPeriod[0], secondPeriod[1]));
+        const thirdPeriodOrder = ordersByPeriod.filter(order => moment(order.time).isBetween(thirdPeriod[0], thirdPeriod[1]));
+        const fourthPeriodOrder = ordersByPeriod.filter(order => moment(order.time).isBetween(fourthPeriod[0], fourthPeriod[1]));
 
         const data = [
             {
