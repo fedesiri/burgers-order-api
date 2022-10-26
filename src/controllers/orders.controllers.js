@@ -1,6 +1,11 @@
 const { Product, Order, OrderProduct } = require("../db.js");
 const moment = require("moment");
-const { createOrEditOrderValidationFields, existingOrderValidation, editOrderValidation } = require("./validations/orderValidations");
+const {
+    createOrEditOrderValidationFields,
+    getSoldQuantityByMonthValidation,
+    existingOrderValidation,
+    editOrderValidation
+} = require("./validations/orderValidations");
 const { Op } = require("sequelize");
 
 const createOrder = async (req, res, next) => {
@@ -133,43 +138,43 @@ const getQuantitySoldByPeriod = period => {
 const getSoldQuantityByMonth = async (req, res, next) => {
     const { date } = req.params;
     try {
-        if (!date || !moment(date).isValid()) {
-            res.send({ success: false, msg: "Date not is valid!", data: null });
-            return;
+        const errorMsg = getSoldQuantityByMonthValidation(date);
+        if (errorMsg) {
+            res.send({ success: false, msg: errorMsg, data: null });
+        } else {
+            const month = moment(date).format("M");
+            const year = moment(date).format("YYYY");
+            const numberOfDays = getNumberOfDays(month);
+            const { firstPeriod, secondPeriod, thirdPeriod, fourthPeriod } = getPeriods(numberOfDays, month, year);
+
+            const ordersByPeriod = await getOrdersByPeriod([firstPeriod[0], fourthPeriod[1]]);
+
+            const firstPeriodOrder = ordersByPeriod.filter(order => moment(order.time).isBetween(firstPeriod[0], firstPeriod[1]));
+            const secondPeriodOrder = ordersByPeriod.filter(order => moment(order.time).isBetween(secondPeriod[0], secondPeriod[1]));
+            const thirdPeriodOrder = ordersByPeriod.filter(order => moment(order.time).isBetween(thirdPeriod[0], thirdPeriod[1]));
+            const fourthPeriodOrder = ordersByPeriod.filter(order => moment(order.time).isBetween(fourthPeriod[0], fourthPeriod[1]));
+
+            const data = [
+                {
+                    label: "Week 1",
+                    total: getQuantitySoldByPeriod(firstPeriodOrder)
+                },
+                {
+                    label: "Week 2",
+                    total: getQuantitySoldByPeriod(secondPeriodOrder)
+                },
+                {
+                    label: "Week 3",
+                    total: getQuantitySoldByPeriod(thirdPeriodOrder)
+                },
+                {
+                    label: "Week 4",
+                    total: getQuantitySoldByPeriod(fourthPeriodOrder)
+                }
+            ];
+
+            res.send({ success: true, msg: null, data });
         }
-
-        const month = moment(date).format("M");
-        const year = moment(date).format("YYYY");
-        const numberOfDays = getNumberOfDays(month);
-        const { firstPeriod, secondPeriod, thirdPeriod, fourthPeriod } = getPeriods(numberOfDays, month, year);
-
-        const ordersByPeriod = await getOrdersByPeriod([firstPeriod[0], fourthPeriod[1]]);
-
-        const firstPeriodOrder = ordersByPeriod.filter(order => moment(order.time).isBetween(firstPeriod[0], firstPeriod[1]));
-        const secondPeriodOrder = ordersByPeriod.filter(order => moment(order.time).isBetween(secondPeriod[0], secondPeriod[1]));
-        const thirdPeriodOrder = ordersByPeriod.filter(order => moment(order.time).isBetween(thirdPeriod[0], thirdPeriod[1]));
-        const fourthPeriodOrder = ordersByPeriod.filter(order => moment(order.time).isBetween(fourthPeriod[0], fourthPeriod[1]));
-
-        const data = [
-            {
-                label: "Week 1",
-                total: getQuantitySoldByPeriod(firstPeriodOrder)
-            },
-            {
-                label: "Week 2",
-                total: getQuantitySoldByPeriod(secondPeriodOrder)
-            },
-            {
-                label: "Week 3",
-                total: getQuantitySoldByPeriod(thirdPeriodOrder)
-            },
-            {
-                label: "Week 4",
-                total: getQuantitySoldByPeriod(fourthPeriodOrder)
-            }
-        ];
-
-        res.send({ success: true, msg: null, data });
     } catch (error) {
         next(error);
     }
