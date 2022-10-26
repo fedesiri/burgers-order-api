@@ -5,7 +5,7 @@ const errorMessages = {
     assignedAddress: "The order must have an address",
     invalidPrice: "Price must be a number greater than 0",
     nonexistingId: id => `There is no order with the id '${id}'`,
-    invalidDate: "Date not is valid!"
+    invalidDate: "The date is not valid"
 };
 
 const createOrEditOrderValidationFields = body => {
