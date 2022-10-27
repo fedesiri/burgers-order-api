@@ -1,8 +1,11 @@
+const moment = require("moment");
+
 const errorMessages = {
     assignedName: "The order must have a name",
     assignedAddress: "The order must have an address",
     invalidPrice: "Price must be a number greater than 0",
-    nonexistingId: id => `There is no order with the id '${id}'`
+    nonexistingId: id => `There is no order with the id '${id}'`,
+    invalidDate: "The date is not valid"
 };
 
 const createOrEditOrderValidationFields = body => {
@@ -13,6 +16,14 @@ const createOrEditOrderValidationFields = body => {
         return errorMessages.assignedAddress;
     } else if (totalPrice < 0) {
         return errorMessages.invalidPrice;
+    } else {
+        return null;
+    }
+};
+
+const getSoldQuantityByMonthValidation = date => {
+    if (!date || !moment(date).isValid()) {
+        return errorMessages.invalidDate;
     } else {
         return null;
     }
@@ -34,6 +45,7 @@ const editOrderValidation = (orderToEdit, id, body) => {
 
 module.exports = {
     createOrEditOrderValidationFields,
+    getSoldQuantityByMonthValidation,
     existingOrderValidation,
     editOrderValidation
 };
