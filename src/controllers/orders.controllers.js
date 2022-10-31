@@ -72,6 +72,21 @@ const getOrders = async (req, res, next) => {
     }
 };
 
+const getOrderById = async (req, res, next) => {
+    const { id } = req.params;
+    try {
+        const existingOrder = await Order.findByPk(id);
+        const errorMsg = existingOrderValidation(existingOrder, id);
+        if (errorMsg) {
+            res.send({ success: false, msg: errorMsg, data: null });
+        } else {
+            res.send({ success: true, msg: null, data: existingOrder });
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
 const getNumberOfDays = month => {
     const thirtyOneDaysMonths = [1, 3, 5, 7, 8, 10, 12];
     const thirtyDaysMonths = [4, 6, 9, 11];
@@ -287,6 +302,7 @@ const editOrder = async (req, res, next) => {
 module.exports = {
     createOrder,
     getOrders,
+    getOrderById,
     deleteOrder,
     editOrderStatus,
     editOrderDelivery,
