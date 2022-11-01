@@ -7,9 +7,10 @@ const {
     editOrderValidation
 } = require("./validations/orderValidations");
 const { Op } = require("sequelize");
+const CircularJSON = require("circular-json");
 
 const createOrder = async (req, res, next) => {
-    const { name, address, notes, paymentMethod, deliveredBy, takeAway, totalPrice, products } = req.body;
+    const { name, address, notes, paymentMethod, takeAway, totalPrice, products } = req.body;
     try {
         const errorMsg = createOrEditOrderValidationFields(req.body);
         if (errorMsg) {
@@ -20,7 +21,6 @@ const createOrder = async (req, res, next) => {
                 address,
                 notes,
                 paymentMethod,
-                deliveredBy,
                 takeAway,
                 totalPrice
             });
@@ -75,12 +75,32 @@ const getOrders = async (req, res, next) => {
 const getOrderById = async (req, res, next) => {
     const { id } = req.params;
     try {
-        const existingOrder = await Order.findByPk(id);
+        const existingOrder = await Order.findOne({
+            where: {
+                id
+            },
+            include: [
+                {
+                    model: Product,
+                    attributes: ["name"]
+                }
+            ]
+        });
         const errorMsg = existingOrderValidation(existingOrder, id);
         if (errorMsg) {
             res.send({ success: false, msg: errorMsg, data: null });
         } else {
-            res.send({ success: true, msg: null, data: existingOrder });
+            let order = CircularJSON.stringify(existingOrder);
+            order = JSON.parse(order);
+            order = {
+                ...existingOrder,
+                products: existingOrder.products.map(product => {
+                    product.get({ plain: true });
+                    product.orderProduct;
+                })
+            };
+
+            res.send({ success: true, msg: null, data: order });
         }
     } catch (error) {
         next(error);
@@ -254,7 +274,7 @@ const editOrderDelivery = async (req, res, next) => {
 
 const editOrder = async (req, res, next) => {
     const { id } = req.params;
-    const { name, address, notes, paymentMethod, takeAway, totalPrice, time, products } = req.body;
+    const { name, address, notes, paymentMethod, takeAway, totalPrice, products } = req.body;
     try {
         const orderToEdit = await Order.findByPk(id);
         const errorMsg = editOrderValidation(orderToEdit, id, req.body);
