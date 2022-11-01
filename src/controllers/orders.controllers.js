@@ -7,7 +7,6 @@ const {
     editOrderValidation
 } = require("./validations/orderValidations");
 const { Op } = require("sequelize");
-const { parse, stringify, toJSON, fromJSON } = require("flatted");
 
 const createOrder = async (req, res, next) => {
     const { name, address, notes, paymentMethod, takeAway, totalPrice, products } = req.body;
