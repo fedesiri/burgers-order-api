@@ -7,7 +7,7 @@ const {
     editOrderValidation
 } = require("./validations/orderValidations");
 const { Op } = require("sequelize");
-const CircularJSON = require("circular-json");
+const { parse, stringify, toJSON, fromJSON } = require("flatted");
 
 const createOrder = async (req, res, next) => {
     const { name, address, notes, paymentMethod, takeAway, totalPrice, products } = req.body;
@@ -72,6 +72,22 @@ const getOrders = async (req, res, next) => {
     }
 };
 
+const formatGetOrderByIdResponse = order => {
+    let formattedOrder = order.get({ plain: true });
+    formattedOrder = {
+        ...formattedOrder,
+        products: formattedOrder.products.map(product => {
+            delete product.orderProduct.id;
+            delete product.orderProduct.orderId;
+            return product.orderProduct;
+        })
+    };
+    delete formattedOrder.deliveredBy;
+    delete formattedOrder.time;
+
+    return formattedOrder;
+};
+
 const getOrderById = async (req, res, next) => {
     const { id } = req.params;
     try {
@@ -90,17 +106,7 @@ const getOrderById = async (req, res, next) => {
         if (errorMsg) {
             res.send({ success: false, msg: errorMsg, data: null });
         } else {
-            let order = CircularJSON.stringify(existingOrder);
-            order = JSON.parse(order);
-            order = {
-                ...existingOrder,
-                products: existingOrder.products.map(product => {
-                    product.get({ plain: true });
-                    product.orderProduct;
-                })
-            };
-
-            res.send({ success: true, msg: null, data: order });
+            res.send({ success: true, msg: null, data: formatGetOrderByIdResponse(existingOrder) });
         }
     } catch (error) {
         next(error);
