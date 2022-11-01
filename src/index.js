@@ -19,7 +19,7 @@ app.use((err, req, res, next) => {
     const status = err.status || 500;
     const message = err.message || err;
     console.error(err);
-    res.status(status).send(message);
+    res.status(status).send({ success: false, msg: message, data: null });
 });
 
 conn.sync({ force: false }).then(() => {

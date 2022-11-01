@@ -9,7 +9,7 @@ const {
 const { Op } = require("sequelize");
 
 const createOrder = async (req, res, next) => {
-    const { name, address, notes, paymentMethod, deliveredBy, takeAway, totalPrice, products } = req.body;
+    const { name, address, notes, paymentMethod, takeAway, totalPrice, products } = req.body;
     try {
         const errorMsg = createOrEditOrderValidationFields(req.body);
         if (errorMsg) {
@@ -20,7 +20,6 @@ const createOrder = async (req, res, next) => {
                 address,
                 notes,
                 paymentMethod,
-                deliveredBy,
                 takeAway,
                 totalPrice
             });
@@ -72,15 +71,41 @@ const getOrders = async (req, res, next) => {
     }
 };
 
+const formatGetOrderByIdResponse = order => {
+    let formattedOrder = order.get({ plain: true });
+    formattedOrder = {
+        ...formattedOrder,
+        products: formattedOrder.products.map(product => {
+            delete product.orderProduct.id;
+            delete product.orderProduct.orderId;
+            return product.orderProduct;
+        })
+    };
+    delete formattedOrder.deliveredBy;
+    delete formattedOrder.time;
+
+    return formattedOrder;
+};
+
 const getOrderById = async (req, res, next) => {
     const { id } = req.params;
     try {
-        const existingOrder = await Order.findByPk(id);
+        const existingOrder = await Order.findOne({
+            where: {
+                id
+            },
+            include: [
+                {
+                    model: Product,
+                    attributes: ["name"]
+                }
+            ]
+        });
         const errorMsg = existingOrderValidation(existingOrder, id);
         if (errorMsg) {
             res.send({ success: false, msg: errorMsg, data: null });
         } else {
-            res.send({ success: true, msg: null, data: existingOrder });
+            res.send({ success: true, msg: null, data: formatGetOrderByIdResponse(existingOrder) });
         }
     } catch (error) {
         next(error);
@@ -254,7 +279,7 @@ const editOrderDelivery = async (req, res, next) => {
 
 const editOrder = async (req, res, next) => {
     const { id } = req.params;
-    const { name, address, notes, paymentMethod, takeAway, totalPrice, time, products } = req.body;
+    const { name, address, notes, paymentMethod, takeAway, totalPrice, products } = req.body;
     try {
         const orderToEdit = await Order.findByPk(id);
         const errorMsg = editOrderValidation(orderToEdit, id, req.body);
@@ -268,7 +293,6 @@ const editOrder = async (req, res, next) => {
             orderToEdit.paymentMethod = paymentMethod;
             orderToEdit.takeAway = takeAway;
             orderToEdit.totalPrice = totalPrice;
-            orderToEdit.time = time;
 
             orderToEdit.save();
 
