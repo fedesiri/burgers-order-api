@@ -293,7 +293,6 @@ const editOrder = async (req, res, next) => {
             orderToEdit.paymentMethod = paymentMethod;
             orderToEdit.takeAway = takeAway;
             orderToEdit.totalPrice = totalPrice;
-            orderToEdit.time = time;
 
             orderToEdit.save();
 
