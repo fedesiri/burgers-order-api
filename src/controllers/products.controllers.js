@@ -2,8 +2,15 @@ const { Product } = require("../db.js");
 const { createProductValidation, editExistingProductValidation, editProductByIdValidation } = require("./validations/productValidations");
 
 const getAllProducts = async (req, res, next) => {
+    const { status } = req.query;
     try {
-        const response = await Product.findAll();
+        let query = {};
+        if (status) {
+            query.status = status;
+        }
+        const response = await Product.findAll({
+            where: query
+        });
         res.send(response);
     } catch (error) {
         next(error);
